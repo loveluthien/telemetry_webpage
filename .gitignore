@@ -1,0 +1,7 @@
+# data files
+/processed_data
+/users_csv
+/dumped_csv
+
+run_mongodb.sh
+.vscodes
