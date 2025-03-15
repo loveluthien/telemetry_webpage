@@ -1,0 +1,10 @@
+[PATH]
+telemetry_dir: /Users/kchou/bz/telemetry/plot-telemetry-v2
+users_csv_dir: /Users/kchou/bz/telemetry/plot-telemetry-v2/users_csv
+dumped_file_dir: /Users/kchou/bz/telemetry/plot-telemetry-v2/dumped_csv
+df_dir: /Users/kchou/bz/telemetry/plot-telemetry-v2/processed_data
+mongo_backup_dir: /Users/kchou/bz/telemetry
+
+[SERVER]
+host: 
+debug: True

@@ -1,12 +1,16 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta, date
-from pycountry_convert import country_alpha2_to_country_name, country_name_to_country_alpha3
+from pycountry_convert import country_alpha2_to_country_name
+import configparser
 
-dumped_file_dir = f'/Users/kchou/bz/telemetry/plot-telemetry-v2/dumped_csv'
+configParser = configparser.ConfigParser()
+configParser.read('config')
+users_csv_dir = configParser.get('PATH', 'users_csv_dir')
+dumped_file_dir = configParser.get('PATH', 'dumped_file_dir')
 
-# today = datetime.today().date()
-today = date(2025, 2, 28)
+today = datetime.today().date()
+# today = date(2025, 2, 28)
 init_date = date(2021, 12, 1)
 
 #### load data ####
@@ -24,6 +28,11 @@ entries_df['datetime'] = pd.to_datetime(entries_df.timestamp, unit='ms')
 files_df['datetime'] = pd.to_datetime(files_df.timestamp, unit='ms')
 spectral_df['datetime'] = pd.to_datetime(spectral_df.timestamp, unit='ms')
 
+users_df.drop(columns=['date'], inplace=True)
+sessions_df.drop(columns=['startTime'], inplace=True)
+entries_df.drop(columns=['timestamp'], inplace=True)
+files_df.drop(columns=['timestamp'], inplace=True)
+spectral_df.drop(columns=['timestamp'], inplace=True)
 
 # process file type
 r_width = files_df['details.width'] > 1

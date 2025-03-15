@@ -1,5 +1,5 @@
 import dash
-from dash import dcc, html, Input, Output, ctx
+from dash import dcc, html, Input, Output, ctx, dash_table
 # import dash_daq as daq
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import ThemeSwitchAIO
@@ -13,12 +13,15 @@ import numpy as np
 from datetime import datetime, timedelta, date
 import calendar
 from pycountry_convert import country_name_to_country_alpha3
+import configparser
 
+## some global variables ##
 today = datetime.today().date()
 init_date = date(2021, 12, 1)
-
-
+configParser = configparser.ConfigParser()
+configParser.read('config')
 SHOWED_COUNTRY_NUM = 10
+## some global variables ##
 
 # Available themes
 LIGHT_THEME = dbc.themes.BOOTSTRAP
@@ -27,7 +30,7 @@ DARK_THEME = dbc.themes.DARKLY
 
 #### load data ####
 # Load CSV data
-df_dir = f'/Users/kchou/bz/telemetry/plot-telemetry-v2/processed_data'
+df_dir = configParser.get('PATH', 'df_dir')
 
 users_df = pd.read_csv(f"{df_dir}/processed_users.csv")
 sessions_df = pd.read_csv(f"{df_dir}/processed_sessions.csv", dtype={'OS_version': str})
@@ -36,10 +39,10 @@ files_df = pd.read_csv(f"{df_dir}/processed_files.csv")
 missing_data_dates = pd.read_csv(f"{df_dir}/missing_data_dates.csv")
 
 # # process date information 
-users_df['datetime'] = pd.to_datetime(users_df.date, format='mixed')
-sessions_df['datetime'] = pd.to_datetime(sessions_df.startTime, unit='ms')
-entries_df['datetime'] = pd.to_datetime(entries_df.timestamp, unit='ms')
-files_df['datetime'] = pd.to_datetime(files_df.timestamp, unit='ms')
+users_df['datetime'] = pd.to_datetime(users_df.datetime, format='mixed')
+sessions_df['datetime'] = pd.to_datetime(sessions_df.datetime, format='mixed')
+entries_df['datetime'] = pd.to_datetime(entries_df.datetime, format='mixed')
+files_df['datetime'] = pd.to_datetime(files_df.datetime, format='mixed')
 missing_data_dates['datetime'] = pd.to_datetime(missing_data_dates.datetime)
 
 
@@ -51,10 +54,18 @@ for i in range(len(size_label)):
 #### load data ####
 
 
+# Initialize Dash app
+app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME, DARK_THEME])
+
+#### make dataframes to table item ####
+
+
 country_tab = html.Div([
-        dcc.Graph(id='country-pie', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '65%'}),
-        dcc.Graph(id='country-map', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '65%'}),
-        dcc.Graph(id='country-other', style={'display': 'block', 'height': '25%'})
+    dbc.Row([
+            dcc.Graph(id='country-pie'),
+            dcc.Graph(id='country-map'),
+            dbc.Row([dcc.Graph(id='country-other')])
+    ], class_name="country-row1")
     ])
 
 users_tab = html.Div([
@@ -77,13 +88,13 @@ users_tab = html.Div([
                             dcc.Tab(label='Unique-IP', value='unique-IP_tab'),
                             dcc.Tab(label='UUID', value='uuid_tab'),
                             dcc.Tab(label='Active-IP', value='active-IP_tab'),
+                            dcc.Tab(label='Sessions', value='session_tab'),
                         ]),
-                    width=2,
                     ),
                 dbc.Col(
-                    html.Div(id='tabs-counts-content', style={'width': '100%'}),
+                    html.Div(id='tabs-counts-content'),
                     ),
-            ])
+            ], class_name="users-row2")
     ])
 
 version_os_tab = html.Div([
@@ -96,12 +107,11 @@ version_os_tab = html.Div([
                             dcc.Tab(label='version basic', value='version_basic_tab'),
                             dcc.Tab(label='version detail', value='version_detail_tab'),
                         ]),
-                    width=2,
                     ),
                 dbc.Col(
                     html.Div(id='tabs-versions-content', style={'width': '100%'}),
                     ),
-            ])
+            ], class_name="version-os-row1")
     ])
 
 file_tab = html.Div([
@@ -111,15 +121,15 @@ file_tab = html.Div([
                     dcc.Tabs(
                             id="tabs-files-selection", value='file_size_tab', vertical=True,
                             children=[
-                            dcc.Tab(label='file size', value='file_size_tab'),
-                            dcc.Tab(label='file shape', value='file_shape_tab'),
+                            dcc.Tab(label='File size', value='file_size_tab'),
+                            dcc.Tab(label='File shape', value='file_shape_tab'),
+                            dcc.Tab(label='Action', value='action_tab'),
                         ]),
-                    width=2,
                     ),
                 dbc.Col(
                     html.Div(id='tabs-files-content', style={'width': '100%'}),
                     ),
-            ])
+            ], class_name="file-row1")
     ])
 
 date_range_button_group = dbc.ButtonGroup([
@@ -150,36 +160,6 @@ country_selection = html.Div([
     style={'display': 'inline-block', 'justify-content': 'center'})
 
 
-# Initialize Dash app
-app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME, DARK_THEME])
-
-app.layout = dbc.Container([
-    html.Div([
-        dcc.DatePickerRange(
-            id='date-picker',
-            start_date='2021-12-01',
-            end_date=today.strftime('%Y-%m-%d'),
-            display_format='YYYY-MM-DD',
-        ),
-        dbc.Button("Today", id="btn-today", n_clicks=0, outline=True, color="primary"),
-        date_range_button_group,
-        country_selection,
-        ThemeSwitchAIO(
-            aio_id="theme", themes=[dbc.themes.COSMO, dbc.themes.CYBORG]
-        )
-    ], style={'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center', 'width': '100%'}),
-    dcc.Tabs(
-        id="tabs-selection", value='country_tab',
-        children=[
-        dcc.Tab(label='Countries', value='country_tab'),
-        dcc.Tab(label='Users', value='users_tab'),
-        dcc.Tab(label='Versions and OS', value='version_os_tab'),
-        dcc.Tab(label='Files', value='file_tab'),
-    ]),
-    html.Div(id='tabs-content')
-], className="mb-4", fluid=True)
-
-
 
 @app.callback(Output('tabs-content', 'children'),
               Input('tabs-selection', 'value'))
@@ -198,32 +178,35 @@ def render_content(tab):
               Input('tabs-counts-selection', 'value'))
 def render_content(tab):
     if tab == 'unique-IP_tab':
-        return dcc.Graph(id='users-unique-IP', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '40%', 'width': '90%'}),
+        return dcc.Graph(id='users-unique-IP'),
     elif tab == 'uuid_tab':
-        return dcc.Graph(id='users-uuid', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '40%', 'width': '90%'}),
+        return dcc.Graph(id='users-uuid'),
     elif tab == 'active-IP_tab':
-        return dcc.Graph(id='users-active-IP', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '40%', 'width': '90%'}),
+        return dcc.Graph(id='users-active-IP'),
+    elif tab == 'session_tab':
+        return dcc.Graph(id='users-session')
 
 
 @app.callback(Output('tabs-versions-content', 'children'),
               Input('tabs-versions-selection', 'value'))
 def render_versions(tab):
     if tab == 'version_basic_tab':
-        return dcc.Graph(id='version-pie', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'width': '45%'}), \
-                dcc.Graph(id='os-pie', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'width': '45%'}),
+        return dcc.Graph(id='version-pie'), \
+                dcc.Graph(id='os-pie'),
     elif tab == 'version_detail_tab':
-        return dcc.Graph(id='os_detail-pie', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '100%'})
+        return dcc.Graph(id='os_detail-pie')
 
 @app.callback(Output('tabs-files-content', 'children'),
               Input('tabs-files-selection', 'value'))
 def render_files(tab):
     if tab == 'file_size_tab':
-        return dcc.Graph(id='file-type-pie', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'width': '45%'}), \
-                dcc.Graph(id='file-size-pie', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'width': '45%'}), \
-                dcc.Graph(id='file-size-bar', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '20%', 'width': '100%'}),
+        return dcc.Graph(id='file-type-pie'), \
+                dcc.Graph(id='file-size-pie'), \
+                dcc.Graph(id='file-size-bar'),
     elif tab == 'file_shape_tab':
-        return dcc.Graph(id='file-shape-XY', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '40%'}), \
-                dcc.Graph(id='file-shape-XZ', style={'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center', 'height': '40%'})
+        return dcc.Graph(id='file-shape')
+    elif tab == 'action_tab':
+        return dcc.Graph(id='action-bar')
 
 
 @app.callback(
@@ -595,11 +578,11 @@ def update_users_active_IP_chart(start_date, end_date, period_value, country_val
     fig = go.Figure()
     
     fig.add_trace(
-    go.Bar(x=monthly_IP.keys()+day_shift, y=monthly_IP.values, name='active IP'))
+    go.Bar(x=monthly_IP.keys()+day_shift, y=monthly_IP.values, name='Active IP'))
 
 
     fig.update_layout(
-        title_text="active IP counts"
+        title_text="Active IP counts"
         )
 
     fig.update_layout(
@@ -617,7 +600,91 @@ def update_users_active_IP_chart(start_date, end_date, period_value, country_val
 
     # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
     fig.update_xaxes(rangeselector_y=1.0,rangeselector_x=0.5)
-    fig.update_yaxes(title_text="# active IP", gridcolor='lightblue')
+    fig.update_yaxes(title_text="# Active IP", gridcolor='lightblue')
+
+    for dd in anno_dates:
+        fig.add_annotation(
+            x=dd + day_shift,
+            y=anno_y,
+            text="incomplete data",
+            showarrow=False,
+            xanchor="center",
+            yanchor="bottom",
+            textangle=-90,
+            font=dict(
+                size=fontsize
+            )
+        )
+
+    return fig
+
+@app.callback(
+    Output('users-session', 'figure'),
+    [Input('date-picker', 'start_date'),
+     Input('date-picker', 'end_date'),
+     Input('period-radio-item', 'value'),
+     Input('country-item', 'value'),]
+)
+def update_users_session_chart(start_date, end_date, period_value, country_value):
+    
+    if period_value == 'monthly':
+        period = 'MS'
+        fontsize = 12
+        anno_y = 50
+        day_shift = timedelta(days=14)
+    elif period_value == 'weekly':
+        period = 'W'
+        fontsize = 8
+        anno_y = 10
+        day_shift = timedelta(days=3)
+    elif period_value == 'daily':
+        period = 'd'
+        fontsize = 5
+        anno_y = 5
+        day_shift = timedelta(days=0)
+
+    missing_data_resample =  missing_data_dates.resample(period, on='datetime').size()
+    anno_dates = missing_data_resample[missing_data_resample.values > 0].keys()
+    
+    if country_value == '':
+        country_select = entries_df['countryCode'] != country_value
+    else:
+        country_select = entries_df['countryCode'] == country_value
+
+    entries_df_selected = entries_df[country_select]
+    monthly_session = entries_df_selected.resample(period, on='datetime')
+    monthly_session = monthly_session.apply(lambda x: x.sessionId.unique().size)
+
+    dd_end = datetime.strptime(end_date.replace("T00:00:00", ""), '%Y-%m-%d')
+    the_last_date_fo_month = calendar.monthrange(dd_end.year, dd_end.month)[1]
+    new_end_date = f"{dd_end.year}-{dd_end.month}-{the_last_date_fo_month}"
+
+    fig = go.Figure()
+    
+    fig.add_trace(
+    go.Bar(x=monthly_session.keys()+day_shift, y=monthly_session.values, name='session'))
+
+
+    fig.update_layout(
+        title_text="Session counts"
+        )
+
+    fig.update_layout(
+        xaxis=dict(
+            autorangeoptions=dict(
+                clipmin=start_date,
+                clipmax=new_end_date,
+            ),
+            rangeslider=dict(
+                visible=False
+            ),
+            type="date"
+        )
+    )
+
+    # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig.update_xaxes(rangeselector_y=1.0,rangeselector_x=0.5)
+    fig.update_yaxes(title_text="# Session", gridcolor='lightblue')
 
     for dd in anno_dates:
         fig.add_annotation(
@@ -912,12 +979,12 @@ def update_file_size_bar_chart(start_date, end_date, country_value):
 
 
 @app.callback(
-    Output('file-shape-XZ', 'figure'),
+    Output('file-shape', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
      Input('country-item', 'value'),]
 )
-def update_file_shape_XZ_chart(start_date, end_date, country_value):
+def update_file_shape_chart(start_date, end_date, country_value):
 
     if country_value == '':
         country_select = files_df['countryCode'] != country_value
@@ -927,20 +994,43 @@ def update_file_shape_XZ_chart(start_date, end_date, country_value):
     select_files = files_df[(files_df['datetime'] >= start_date) & (files_df['datetime'] <= end_date) & country_select]
     cube = select_files.loc[(select_files.file_type == '3D') | (select_files.file_type == '3D+Stokes')]
     
-    fig = go.Figure(go.Histogram2d(x=np.log10(np.sqrt(cube['details.width']*cube['details.height'])), 
+    fig = make_subplots(rows=1, cols=2)
+
+
+    fig.add_trace(go.Histogram2d(x=np.log10(cube['details.width']), 
+                            y=np.log10(cube['details.height']), 
+                            #  colorscale='Viridis',
+                            colorscale='dense',
+                            autobinx=False,
+                            autobiny=False,
+                            xbins=dict(start=0, end=5, size=0.2),
+                            ybins=dict(start=0, end=5, size=0.2),
+                            colorbar=dict(len=1, x=0.45),
+                            ),
+                            row=1, col=1,
+    )
+
+    fig.add_trace(
+        go.Scatter(
+        x=[0,5], y=[0,5]),
+        row=1, col=1,
+        )
+    
+    fig.update_xaxes(title_text=r"Spatial X pixels [log]", row=1, col=1)
+    fig.update_yaxes(title_text=r"Spatial Y pixels [log]", row=1, col=1)
+
+    fig.add_trace(go.Histogram2d(x=np.log10(cube['details.width']), 
                             y=np.log10(cube['details.depth']), 
                             #  colorscale='Viridis',
                             colorscale='dense',
                             autobinx=False,
                             autobiny=False,
                             xbins=dict(start=0, end=5, size=0.2),
-                            ybins=dict(start=0, end=5, size=0.2),)
+                            ybins=dict(start=0, end=5, size=0.2),
+                            colorbar=dict(len=1, x=1),
+                            ),
+                            row=1, col=2,
     )
-
-    fig.add_trace(
-        go.Scatter(
-        x=[0,5], y=[0,5])
-        )
 
     fig.update_layout(
         xaxis=dict(
@@ -955,18 +1045,23 @@ def update_file_shape_XZ_chart(start_date, end_date, country_value):
                 clipmax=5,
             )
             ,),
-        width=500,
-        height=500,
         # margin=dict(l=0, r=0, t=0, b=0),
         )
-    fig.update_xaxes(title_text="Spatial pixels in log10)")
-    fig.update_yaxes(title_text="Channels in log10")
+    
+    # fig.add_trace(
+    #     go.Scatter(
+    #     x=[0,5], y=[0,5]),
+    #     row=1, col=2,
+    #     )
+
+    fig.update_xaxes(title_text=r"Spatial X pixels [log]", row=1, col=2)
+    fig.update_yaxes(title_text=r"Channels [log]", row=1, col=2)
 
     return fig
 
 
 @app.callback(
-    Output('file-shape-XY', 'figure'),
+    Output('action-bar', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
      Input('country-item', 'value'),]
@@ -974,49 +1069,73 @@ def update_file_shape_XZ_chart(start_date, end_date, country_value):
 def update_file_shape_XY_chart(start_date, end_date, country_value):
 
     if country_value == '':
-        country_select = files_df['countryCode'] != country_value
+        country_select = entries_df['countryCode'] != country_value
     else:
-        country_select = files_df['countryCode'] == country_value
+        country_select = entries_df['countryCode'] == country_value
 
-    select_files = files_df[(files_df['datetime'] >= start_date) & (files_df['datetime'] <= end_date) & country_select]
-    cube = select_files.loc[(select_files.file_type == '3D') | (select_files.file_type == '3D+Stokes')]
+    select_entries = entries_df[(entries_df['datetime'] >= start_date) & (entries_df['datetime'] <= end_date) & country_select]
     
+    actions = select_entries.action.value_counts()
 
-    fig = go.Figure(go.Histogram2d(x=np.log10(cube['details.width']), 
-                            y=np.log10(cube['details.height']), 
-                            # colorscale='Viridis',
-                            colorscale='dense',
-                            autobinx=False,
-                            autobiny=False,
-                            xbins=dict(start=0, end=5, size=0.25),
-                            ybins=dict(start=0, end=5, size=0.25),)
-    )
+    plot_action_names = ['spectralProfileGeneration', 'momentGeneration', 'catalogLoading', 'pvGeneration']
 
-    fig.add_trace(
-        go.Scatter(
-        x=[0,5], y=[0,5])
-        )
+    fig = go.Figure()
+    for action_name in plot_action_names:
+        ratio = actions[action_name] / actions['endSession']
+        fig.add_trace(go.Bar(y=['action'], x=[ratio], name=f'{action_name}', orientation='h', text=[f'{action_name}']))
 
     fig.update_layout(
-        xaxis=dict(
-            autorangeoptions=dict(
-                clipmin=0,
-                clipmax=5,
-            ),
-            ),
-        yaxis=dict(
-            autorangeoptions=dict(
-                clipmin=0,
-                clipmax=5,
-            )
-            ,),
-        width=500,
-        height=500,
-        )
+        barmode='stack', 
+        barnorm='percent',
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+    ))
+    fig.update_xaxes(title_text="%")
 
     return fig
 
 ## file tab ##
 
+
+def serve_layout():
+    layout = dbc.Container([
+        html.Div([
+            dcc.DatePickerRange(
+                id='date-picker',
+                start_date='2021-12-01',
+                end_date=today.strftime('%Y-%m-%d'),
+                display_format='YYYY-MM-DD',
+            ),
+            dbc.Button("Today", id="btn-today", n_clicks=0, outline=True, color="primary"),
+            date_range_button_group,
+            country_selection,
+            ThemeSwitchAIO(
+                aio_id="theme", themes=[dbc.themes.COSMO, dbc.themes.CYBORG]
+            )
+        ], style={'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center', 'width': '100%'}),
+        dcc.Tabs(
+            id="tabs-selection", value='country_tab',
+            children=[
+            dcc.Tab(label='Countries', value='country_tab'),
+            dcc.Tab(label='Users', value='users_tab'),
+            dcc.Tab(label='Versions and OS', value='version_os_tab'),
+            dcc.Tab(label='Files and actions', value='file_tab'),
+        ]),
+        html.Div(id='tabs-content'),
+        ], fluid=True)
+    
+    return layout
+
+
+app.layout = serve_layout
+
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    debug_mode = configParser.get('SERVER', 'debug') == 'True'
+    host_ip = configParser.get('SERVER', 'host')
+    if host_ip == '':
+        host_ip = 'localhost'
+    app.run(debug=debug_mode, host=host_ip)

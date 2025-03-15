@@ -1,0 +1,158 @@
+html {
+    height: 100vh;
+
+    [id=react-entry-point] {
+        margin : 10px 5px 5px 5px;
+        height: 95%;
+    }
+    
+    [id=tabs-selection] {
+        margin : 10px 0px;
+    }
+    
+    [id=tabs-content] {
+        
+        .country-row1 {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            margin: 10px;
+
+            [id=country-pie] {
+                margin: 10px;
+                height: 45vh;
+                width: 40vw;
+            }
+
+            [id=country-map] {
+                margin: 10px;
+                height: 40vh;
+                width: 40vw;
+            }
+
+            [id=country-other] {
+                margin: 10px;
+                height: 30vh;
+                width: 95vw;
+            }
+        }
+
+        .users-row2 {
+
+            [id=tabs-counts-selection-parent] {
+                margin: 40px 10px;
+            }
+
+            [id=users-unique-IP] {
+                margin: 10px;
+                height: 60vh;
+                width: 80vw;
+            }
+
+            [id=users-uuid] {
+                margin: 10px;
+                height: 60vh;
+                width: 80vw;
+            }
+
+            [id=users-active-IP] {
+                margin: 10px;
+                height: 60vh;
+                width: 80vw;
+            }
+
+            [id=users-session] {
+                margin: 10px;
+                height: 60vh;
+                width: 80vw;
+            }
+        }
+
+        .version-os-row1 {
+            [id=tabs-versions-selection-parent] {
+                margin: 40px 10px;
+            }
+
+            [id=tabs-versions-content] {
+                display: flex;
+                justify-content: center;
+                
+                [id=version-pie] {
+                    margin: 10px;
+                    padding: 20px 0px;
+                    height: 50vh;
+                    width: 35vw;
+                }
+    
+                [id=os-pie] {
+                    margin: 10px;
+                    padding: 20px 0px;
+                    height: 50vh;
+                    width: 35vw;
+                }
+
+                [id=os_detail-pie] {
+                    margin: 10px;
+                    height: 70vh;
+                    width: 70vw;
+                }
+            }
+        }
+
+        .file-row1 {
+            [id=tabs-files-selection-parent] {
+                margin: 40px 10px;
+            }
+
+            [id=tabs-files-content] {
+                display: flex;
+                flex-wrap: wrap;
+                
+                [id=file-type-pie] {
+                    margin: 10px;
+                    height: 40vh;
+                    width: 35vw;
+                }
+    
+                [id=file-size-pie] {
+                    margin: 10px;
+                    height: 40vh;
+                    width: 35vw;
+                }
+
+                [id=file-size-bar] {
+                    margin: 10px;
+                    height: 30vh;
+                    width: 75vw;
+                }
+
+                [id=file-shape] {
+                    margin: 10px;
+                    height: 65vh;
+                    width: 75vw;
+                }
+
+                [id=action-bar] {
+                    margin: 10px;
+                    height: 40vh;
+                    width: 80vw;
+                }
+            }
+        }
+
+    }
+    
+    .form-check {
+        padding: 1px;
+    }
+    
+    .row {
+        margin: 10px;
+    }
+    
+    [id=tabs=content] {
+        height: 80%;
+    }
+}
+
+

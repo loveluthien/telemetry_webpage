@@ -1,9 +1,13 @@
 import pandas as pd
 import glob
 import re
+import configparser
 
-users_csv_dir = f'/Users/kchou/bz/telemetry/plot-telemetry-v2/users_csv'
-dumped_file_dir = f'/Users/kchou/bz/telemetry/plot-telemetry-v2/dumped_csv'
+
+configParser = configparser.ConfigParser()
+configParser.read('config')
+users_csv_dir = configParser.get('PATH', 'users_csv_dir')
+dumped_file_dir = configParser.get('PATH', 'dumped_file_dir')
 
 users_csv_files = glob.glob(f'{users_csv_dir}/*.csv')
 users_csv_files.sort()

@@ -4,4 +4,9 @@
 /dumped_csv
 
 run_mongodb.sh
+test.ipynb
+
 .vscodes
+.DS_Store
+venv
+.env
