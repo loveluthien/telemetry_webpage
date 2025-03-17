@@ -38,13 +38,16 @@ entries_df = pd.read_csv(f"{df_dir}/processed_entries.csv")
 files_df = pd.read_csv(f"{df_dir}/processed_files.csv")
 missing_data_dates = pd.read_csv(f"{df_dir}/missing_data_dates.csv")
 
-# # process date information 
+# process date information 
 users_df['datetime'] = pd.to_datetime(users_df.datetime, format='mixed')
 sessions_df['datetime'] = pd.to_datetime(sessions_df.datetime, format='mixed')
 entries_df['datetime'] = pd.to_datetime(entries_df.datetime, format='mixed')
 files_df['datetime'] = pd.to_datetime(files_df.datetime, format='mixed')
 missing_data_dates['datetime'] = pd.to_datetime(missing_data_dates.datetime)
 
+# optIn fraction
+entries_df_counts = entries_df['action'].value_counts()
+opt_in_frac = entries_df_counts['optIn'] / (entries_df_counts['optIn'] + entries_df_counts['optOut'])
 
 size_label = ["<1MB", "1MB-10MB", "10MB-100MB", "100MB-1GB", "1GB-10GB", "10GB-100GB", "100GB-1TB", "1TB-10TB"] # in MB
 size_label_index = {}
@@ -59,6 +62,14 @@ app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME, DARK_THEME])
 
 #### make dataframes to table item ####
 
+home_tab = html.Div([
+    html.H1(["CARTA"]),
+    html.H2(f"has been opened on {users_df.__len__()} computers"),
+    html.H3("since Dec. 2021"),
+    html.P(["* The statistics is not included the data from the ALMA archive and other self deployed servers", 
+            html.Br(), 
+            f"* {opt_in_frac*100:.1f}% users who allowed to share the telemetry data"]),
+    ], className="home")
 
 country_tab = html.Div([
     dbc.Row([
@@ -109,7 +120,7 @@ version_os_tab = html.Div([
                         ]),
                     ),
                 dbc.Col(
-                    html.Div(id='tabs-versions-content', style={'width': '100%'}),
+                    html.Div(id='tabs-versions-content'),
                     ),
             ], class_name="version-os-row1")
     ])
@@ -127,7 +138,7 @@ file_tab = html.Div([
                         ]),
                     ),
                 dbc.Col(
-                    html.Div(id='tabs-files-content', style={'width': '100%'}),
+                    html.Div(id='tabs-files-content'),
                     ),
             ], class_name="file-row1")
     ])
@@ -172,19 +183,21 @@ def render_content(tab):
         return version_os_tab
     elif tab == 'file_tab':
         return file_tab
+    elif tab == 'home_tab':
+        return home_tab
     
 
 @app.callback(Output('tabs-counts-content', 'children'),
               Input('tabs-counts-selection', 'value'))
 def render_content(tab):
     if tab == 'unique-IP_tab':
-        return dcc.Graph(id='users-unique-IP'),
+        return dcc.Graph(id='users-unique-IP'), dcc.Markdown("Every IP recorded only once since the telemetry started")
     elif tab == 'uuid_tab':
-        return dcc.Graph(id='users-uuid'),
+        return dcc.Graph(id='users-uuid'), dcc.Markdown("Unique ID for each computer")
     elif tab == 'active-IP_tab':
-        return dcc.Graph(id='users-active-IP'),
+        return dcc.Graph(id='users-active-IP'), dcc.Markdown("Unduplicated IPs recorded during the selected period (montly, weekly, daily)")
     elif tab == 'session_tab':
-        return dcc.Graph(id='users-session')
+        return dcc.Graph(id='users-session'), dcc.Markdown(f"Session numbers are from {opt_in_frac*100:.1f}% users allowing to share the telemetry data")
 
 
 @app.callback(Output('tabs-versions-content', 'children'),
@@ -192,9 +205,10 @@ def render_content(tab):
 def render_versions(tab):
     if tab == 'version_basic_tab':
         return dcc.Graph(id='version-pie'), \
-                dcc.Graph(id='os-pie'),
+                dcc.Graph(id='os-pie'), \
+                dcc.Markdown(f"Platform distribution is based on data from {opt_in_frac*100:.1f}% users who allowed to share the telemetry data")
     elif tab == 'version_detail_tab':
-        return dcc.Graph(id='os_detail-pie')
+        return dcc.Graph(id='os_detail-pie'), dcc.Markdown(f"Data from {opt_in_frac*100:.1f}% users who allowed to share the telemetry data")
 
 @app.callback(Output('tabs-files-content', 'children'),
               Input('tabs-files-selection', 'value'))
@@ -202,11 +216,11 @@ def render_files(tab):
     if tab == 'file_size_tab':
         return dcc.Graph(id='file-type-pie'), \
                 dcc.Graph(id='file-size-pie'), \
-                dcc.Graph(id='file-size-bar'),
+                dcc.Graph(id='file-size-bar'), dcc.Markdown(f"All figures on this tab are based on data from {opt_in_frac*100:.1f}% users who allowed to share the telemetry data")
     elif tab == 'file_shape_tab':
-        return dcc.Graph(id='file-shape')
+        return dcc.Graph(id='file-shape'), dcc.Markdown(f"All figures on this tab are based on data from {opt_in_frac*100:.1f}% users who allowed to share the telemetry data")
     elif tab == 'action_tab':
-        return dcc.Graph(id='action-bar')
+        return dcc.Graph(id='action-bar'), dcc.Markdown(f"Data from {opt_in_frac*100:.1f}% users who allowed to share the telemetry data")
 
 
 @app.callback(
@@ -1118,8 +1132,9 @@ def serve_layout():
             )
         ], style={'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center', 'width': '100%'}),
         dcc.Tabs(
-            id="tabs-selection", value='country_tab',
+            id="tabs-selection", value='home_tab',
             children=[
+            dcc.Tab(label='Home', value='home_tab'),
             dcc.Tab(label='Countries', value='country_tab'),
             dcc.Tab(label='Users', value='users_tab'),
             dcc.Tab(label='Versions and OS', value='version_os_tab'),

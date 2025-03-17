@@ -11,6 +11,41 @@ html {
     }
     
     [id=tabs-content] {
+
+        .home {
+            height: 90vh;
+            font-family: Arial;
+
+            h1 {
+                position: absolute;
+                top: 30%;
+                left: 20%;
+                font-weight: bold;
+                font-size: 7vh;
+            }
+
+            h2 {
+                position: absolute;
+                top: 40%;
+                left: 35%;
+                font-size: 3vh;
+            }
+
+            h3 {
+                position: absolute;
+                top: 45%;
+                left: 70%;
+                font-size: 2vh;
+                font-style: italic;
+            }
+
+            p {
+                position: absolute;
+                top: 55%;
+                left: 50%;
+                font-size: 1.2vh;
+            }
+        }
         
         .country-row1 {
             display: flex;
@@ -75,19 +110,20 @@ html {
 
             [id=tabs-versions-content] {
                 display: flex;
-                justify-content: center;
+                flex-wrap: wrap;
+                width: 80vw;
                 
                 [id=version-pie] {
                     margin: 10px;
                     padding: 20px 0px;
-                    height: 50vh;
+                    height: 40vh;
                     width: 35vw;
                 }
     
                 [id=os-pie] {
                     margin: 10px;
                     padding: 20px 0px;
-                    height: 50vh;
+                    height: 40vh;
                     width: 35vw;
                 }
 
@@ -107,6 +143,7 @@ html {
             [id=tabs-files-content] {
                 display: flex;
                 flex-wrap: wrap;
+                width: 80vw;
                 
                 [id=file-type-pie] {
                     margin: 10px;
