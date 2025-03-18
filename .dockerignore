@@ -1,0 +1,12 @@
+.git
+.gitignore
+Dockerfile
+*.md
+add_date_for_users.py
+daily_mongodb_dump.sh
+dumped_csv/
+extract_users.sh
+preprocess_df.py
+run_mongodb.sh
+test.ipynb
+users_csv/

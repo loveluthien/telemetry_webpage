@@ -59,6 +59,7 @@ for i in range(len(size_label)):
 
 # Initialize Dash app
 app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME, DARK_THEME])
+server = app.server
 
 #### make dataframes to table item ####
 
@@ -1153,4 +1154,7 @@ if __name__ == '__main__':
     host_ip = configParser.get('SERVER', 'host')
     if host_ip == '':
         host_ip = 'localhost'
-    app.run(debug=debug_mode, host=host_ip)
+    port = configParser.get('SERVER', 'port')
+    if port == '':
+        port = 8050
+    app.run(debug=debug_mode, host=host_ip, port=port)

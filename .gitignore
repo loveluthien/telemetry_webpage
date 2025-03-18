@@ -3,6 +3,7 @@
 /users_csv
 /dumped_csv
 
+# test files
 run_mongodb.sh
 test.ipynb
 
@@ -10,3 +11,4 @@ test.ipynb
 .DS_Store
 venv
 .env
+*.pyc
