@@ -141,7 +141,7 @@ missing_data_dates['datetime'] = pd.to_datetime(missing_data_dates.datetime)
 
 
 # save processed data
-processed_file_dir = "/Users/kchou/bz/telemetry/plot-telemetry-v2/processed_data"
+processed_file_dir = configParser.get('PATH', 'df_dir')
 
 missing_data_dates.to_csv(f"{processed_file_dir}/missing_data_dates.csv", index=False)
 files_df.to_csv(f"{processed_file_dir}/processed_files.csv", index=False)
