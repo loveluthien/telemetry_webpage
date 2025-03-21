@@ -309,7 +309,7 @@ def update_country_pie_chart(start_date, end_date, toogle):
     # fig.update_traces(textposition='outside', textinfo='percent+label')
     # fig.update_traces(textposition='outside', textinfo='percent+value+label')
     fig.update_traces(textinfo='percent+value+label', insidetextorientation='horizontal')
-    fig.update_layout(transition_duration=500, showlegend=False)
+    fig.update_layout(title_text="Top 10 countries", transition_duration=500, showlegend=False)
     fig.update_layout(margin={"r":0,"t":50,"l":0,"b":0})
 
     return fig
@@ -333,7 +333,7 @@ def update_other_country_chart(start_date, end_date, toogle):
                 labels={'y':'%', 'x':'Country', 'text':'Count'},
                 hover_data=['country'], template=theme)
     fig.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
-    fig.update_layout(transition_duration=500, xaxis_tickangle=45, xaxis_title=None)
+    fig.update_layout(title_text="Details of others", transition_duration=500, xaxis_tickangle=45, xaxis_title=None)
     # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
     return fig
