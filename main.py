@@ -90,7 +90,19 @@ users_tab = html.Div([
             inputClassName="btn-check",
             labelClassName="btn btn-outline-primary",
             labelCheckedClassName="active",
-        ),]),
+        ),
+        # Font size controls for axis labels
+        html.Div([
+            html.Label("Label Font Size:"),
+            dcc.Input(id='label-fontsize', type='number', value=16, min=8, max=40, step=1, style={'width': '60px'}),
+            html.Label("X Size:", style={'marginLeft': '20px'}),
+            dcc.Input(id='x-tick-fontsize', type='number', value=12, min=6, max=32, step=1, style={'width': '60px'}),
+            html.Label("Y Size:", style={'marginLeft': '10px'}),
+            dcc.Input(id='y-tick-fontsize', type='number', value=12, min=6, max=32, step=1, style={'width': '60px'}),
+            html.Label("Legend Font Size:", style={'marginLeft': '20px'}),
+            dcc.Input(id='legend-fontsize', type='number', value=14, min=8, max=40, step=1, style={'width': '60px'}),
+        ], style={'display': 'inline-block', 'marginLeft': '20px'}),
+        ]),
         dbc.Row(
             [
                 dbc.Col(
@@ -170,7 +182,6 @@ country_selection = html.Div([
     ], 
     className="radio-group",
     style={'display': 'inline-block', 'justify-content': 'center'})
-
 
 
 @app.callback(Output('tabs-content', 'children'),
@@ -346,9 +357,14 @@ def update_other_country_chart(start_date, end_date, toogle):
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
      Input('period-radio-item', 'value'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input('label-fontsize', 'value'),
+     Input('legend-fontsize', 'value'),
+     Input('x-tick-fontsize', 'value'),
+     Input('y-tick-fontsize', 'value'),
+    ]
 )
-def update_users_unique_IP_chart(start_date, end_date, period_value, country_value):
+def update_users_unique_IP_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize):
     
     if period_value == 'monthly':
         period = 'MS'
@@ -404,10 +420,9 @@ def update_users_unique_IP_chart(start_date, end_date, period_value, country_val
         title_text="Unique IP counts"
     )
 
-    fig.update_yaxes(title_text="# Unique IP", secondary_y=False, gridcolor='lightblue')
-    fig.update_yaxes(title_text="# Cumulative Unique IP", color='red', secondary_y=True, gridcolor='#fccfd2')
-    # fig.update_layout(margin={"r":0,"t":50,"l":0,"b":0})
-    fig.update_xaxes(rangeselector_y=1.0,rangeselector_x=0.5)
+    fig.update_yaxes(title_text="# Unique IP", secondary_y=False, gridcolor='lightblue', title_font=dict(size=label_fontsize), tickfont=dict(size=y_tick_fontsize))
+    fig.update_yaxes(title_text="# Cumulative Unique IP", color='red', secondary_y=True, gridcolor='#fccfd2', title_font=dict(size=label_fontsize), tickfont=dict(size=y_tick_fontsize))
+    fig.update_xaxes(rangeselector_y=1.0, rangeselector_x=0.5, title_font=dict(size=label_fontsize), tickfont=dict(size=x_tick_fontsize))
 
     fig.update_layout(
         xaxis=dict(
@@ -426,7 +441,8 @@ def update_users_unique_IP_chart(start_date, end_date, period_value, country_val
         yanchor="bottom",
         y=1.00,
         xanchor="left",
-        x=0.9
+        x=0.9,
+        font=dict(size=legend_fontsize)
     ))
 
     for dd in anno_dates:
@@ -448,12 +464,18 @@ def update_users_unique_IP_chart(start_date, end_date, period_value, country_val
 
 @app.callback(
     Output('users-uuid', 'figure'),
-    [Input('date-picker', 'start_date'),
-     Input('date-picker', 'end_date'),
-     Input('period-radio-item', 'value'),
-     Input('country-item', 'value'),]
+    [
+        Input('date-picker', 'start_date'),
+        Input('date-picker', 'end_date'),
+        Input('period-radio-item', 'value'),
+        Input('country-item', 'value'),
+        Input('label-fontsize', 'value'),
+        Input('legend-fontsize', 'value'),
+        Input('x-tick-fontsize', 'value'),
+        Input('y-tick-fontsize', 'value'),
+    ]
 )
-def update_users_uuid_chart(start_date, end_date, period_value, country_value):
+def update_users_uuid_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize):
 
     if period_value == 'monthly':
         period = 'MS'
@@ -492,7 +514,7 @@ def update_users_uuid_chart(start_date, end_date, period_value, country_value):
     fig.add_trace(
         go.Bar(x=monthly_uuid.keys() + day_shift, y=monthly_uuid.values, name='uuid'),
         secondary_y=False,
-        )
+    )
 
     fig.add_trace(
         go.Scatter(x=monthly_uuid.keys() + day_shift, y=cum_monthly_uuid,
@@ -500,8 +522,7 @@ def update_users_uuid_chart(start_date, end_date, period_value, country_value):
                 name='cumulative',
                 ),
         secondary_y=True,
-        )
-
+    )
 
     fig.update_layout(
         title_text="UUID counts"
@@ -520,31 +541,46 @@ def update_users_uuid_chart(start_date, end_date, period_value, country_value):
         )
     )
 
-    fig.update_yaxes(title_text="# UUID", secondary_y=False, gridcolor='lightblue')
-    fig.update_yaxes(title_text="# Cumulative UUID", color='red', secondary_y=True, gridcolor='#fccfd2')
-    # fig.update_layout(margin={"r":0,"t":50,"l":0,"b":0})
-    fig.update_xaxes(rangeselector_y=1.0,rangeselector_x=0.5)
-
-    for dd in anno_dates:
-            fig.add_annotation(
-                x=dd + day_shift,
-                y=anno_y,
-                text="incomplete data",
-                showarrow=False,
-                xanchor="center",
-                yanchor="bottom",
-                textangle=-90,
-                font=dict(
-                    size=fontsize
-                )
-            )
+    fig.update_yaxes(
+        title_text="# UUID",
+        secondary_y=False,
+        gridcolor='lightblue',
+        title_font=dict(size=label_fontsize)  # Use y label font size from UI
+    )
+    fig.update_yaxes(
+        title_text="# Cumulative UUID",
+        color='red',
+        secondary_y=True,
+        gridcolor='#fccfd2',
+        title_font=dict(size=label_fontsize)  # Use y label font size from UI
+    )
+    fig.update_xaxes(
+        rangeselector_y=1.0,
+        rangeselector_x=0.5,
+        title_font=dict(size=x_tick_fontsize)  # Use x label font size from UI
+    )
 
     fig.update_layout(legend=dict(
         yanchor="bottom",
         y=1.00,
         xanchor="left",
-        x=0.9
+        x=0.9,
+        font=dict(size=legend_fontsize)
     ))
+
+    for dd in anno_dates:
+        fig.add_annotation(
+            x=dd + day_shift,
+            y=anno_y,
+            text="incomplete data",
+            showarrow=False,
+            xanchor="center",
+            yanchor="bottom",
+            textangle=-90,
+            font=dict(
+                size=fontsize
+            )
+        )
 
     return fig
 
@@ -554,9 +590,14 @@ def update_users_uuid_chart(start_date, end_date, period_value, country_value):
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
      Input('period-radio-item', 'value'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input('label-fontsize', 'value'),
+     Input('legend-fontsize', 'value'),
+     Input('x-tick-fontsize', 'value'),
+     Input('y-tick-fontsize', 'value'),
+    ]
 )
-def update_users_active_IP_chart(start_date, end_date, period_value, country_value):
+def update_users_active_IP_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize):
     
     if period_value == 'monthly':
         period = 'MS'
@@ -593,7 +634,7 @@ def update_users_active_IP_chart(start_date, end_date, period_value, country_val
     fig = go.Figure()
     
     fig.add_trace(
-    go.Bar(x=monthly_IP.keys()+day_shift, y=monthly_IP.values, name='Active IP'))
+        go.Bar(x=monthly_IP.keys()+day_shift, y=monthly_IP.values, name='Active IP'))
 
 
     fig.update_layout(
@@ -613,9 +654,16 @@ def update_users_active_IP_chart(start_date, end_date, period_value, country_val
         )
     )
 
-    # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-    fig.update_xaxes(rangeselector_y=1.0,rangeselector_x=0.5)
-    fig.update_yaxes(title_text="# Active IP", gridcolor='lightblue')
+    fig.update_xaxes(rangeselector_y=1.0, rangeselector_x=0.5, title_font=dict(size=label_fontsize), tickfont=dict(size=x_tick_fontsize))
+    fig.update_yaxes(title_text="# Active IP", gridcolor='lightblue', title_font=dict(size=label_fontsize), tickfont=dict(size=y_tick_fontsize))
+
+    fig.update_layout(legend=dict(
+        yanchor="bottom",
+        y=1.00,
+        xanchor="left",
+        x=0.9,
+        font=dict(size=legend_fontsize)
+    ))
 
     for dd in anno_dates:
         fig.add_annotation(
@@ -633,14 +681,20 @@ def update_users_active_IP_chart(start_date, end_date, period_value, country_val
 
     return fig
 
+
 @app.callback(
     Output('users-session', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
      Input('period-radio-item', 'value'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input('label-fontsize', 'value'),
+     Input('legend-fontsize', 'value'),
+     Input('x-tick-fontsize', 'value'),
+     Input('y-tick-fontsize', 'value'),
+    ]
 )
-def update_users_session_chart(start_date, end_date, period_value, country_value):
+def update_users_session_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize):
     
     if period_value == 'monthly':
         period = 'MS'
@@ -677,7 +731,7 @@ def update_users_session_chart(start_date, end_date, period_value, country_value
     fig = go.Figure()
     
     fig.add_trace(
-    go.Bar(x=monthly_session.keys()+day_shift, y=monthly_session.values, name='session'))
+        go.Bar(x=monthly_session.keys()+day_shift, y=monthly_session.values, name='session'))
 
 
     fig.update_layout(
@@ -697,9 +751,16 @@ def update_users_session_chart(start_date, end_date, period_value, country_value
         )
     )
 
-    # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-    fig.update_xaxes(rangeselector_y=1.0,rangeselector_x=0.5)
-    fig.update_yaxes(title_text="# Session", gridcolor='lightblue')
+    fig.update_xaxes(rangeselector_y=1.0, rangeselector_x=0.5, title_font=dict(size=label_fontsize), tickfont=dict(size=x_tick_fontsize))
+    fig.update_yaxes(title_text="# Session", gridcolor='lightblue', title_font=dict(size=label_fontsize), tickfont=dict(size=y_tick_fontsize))
+
+    fig.update_layout(legend=dict(
+        yanchor="bottom",
+        y=1.00,
+        xanchor="left",
+        x=0.9,
+        font=dict(size=legend_fontsize)
+    ))
 
     for dd in anno_dates:
         fig.add_annotation(

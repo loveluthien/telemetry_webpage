@@ -2,8 +2,8 @@
 
 # daily dump the entries and sessions collections from the mongo backup files and export it to a csv file
 
-mongo_backup_dir=$(awk -F ":" '/mongo_backup_dir/ {print $2}' config)
-dumped_dir=$(awk -F ":" '/dumped_file_dir/ {print $2}' config)
+mongo_backup_dir="../"
+dumped_dir="./dumped_csv"
 
 today=`date +"%Y_%m_%d"` 
 
