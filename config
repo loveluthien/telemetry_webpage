@@ -1,9 +1,9 @@
 [PATH]
-telemetry_dir: .
+telemetry_dir: ./
 users_csv_dir: ./users_csv
 dumped_file_dir: ./dumped_csv
 df_dir: ./processed_data
-mongo_backup_dir: /Users/kchou/bz/telemetry
+mongo_backup_dir: /var/www/telemetry
 
 [SERVER]
 host: 0.0.0.0

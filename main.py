@@ -58,7 +58,7 @@ for i in range(len(size_label)):
 
 
 # Initialize Dash app
-app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME, DARK_THEME])
+app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME, DARK_THEME], url_base_pathname="/dash-telemetry/")
 server = app.server
 
 #### make dataframes to table item ####
