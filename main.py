@@ -545,19 +545,22 @@ def update_users_uuid_chart(start_date, end_date, period_value, country_value, l
         title_text="# UUID",
         secondary_y=False,
         gridcolor='lightblue',
-        title_font=dict(size=label_fontsize)  # Use y label font size from UI
+        title_font=dict(size=label_fontsize),  # Use y label font size from UI
+        tickfont=dict(size=y_tick_fontsize)
     )
     fig.update_yaxes(
         title_text="# Cumulative UUID",
         color='red',
         secondary_y=True,
         gridcolor='#fccfd2',
-        title_font=dict(size=label_fontsize)  # Use y label font size from UI
+        title_font=dict(size=label_fontsize),  # Use y label font size from UI
+        tickfont=dict(size=y_tick_fontsize)
     )
     fig.update_xaxes(
         rangeselector_y=1.0,
         rangeselector_x=0.5,
-        title_font=dict(size=x_tick_fontsize)  # Use x label font size from UI
+        title_font=dict(size=label_fontsize),  # Use x label font size from UI
+        tickfont=dict(size=x_tick_fontsize)
     )
 
     fig.update_layout(legend=dict(
