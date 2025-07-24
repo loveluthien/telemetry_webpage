@@ -283,7 +283,7 @@ def set_date_range(start_date, end_date, n_today, n_1m, n_3m, n_6m, n_1y, n_all)
      Input(ThemeSwitchAIO.ids.switch("theme"), "value")]
 )
 def update_country_map_chart(start_date, end_date, toogle):
-    theme = "cosmo" if toogle else "cyborg"
+    theme = "cosmo" if not toogle else "cyborg"
 
     # process country information
     countries = users_df[(users_df['datetime'] >= start_date) & (users_df['datetime'] <= end_date)]
@@ -306,7 +306,7 @@ def update_country_map_chart(start_date, end_date, toogle):
      Input(ThemeSwitchAIO.ids.switch("theme"), "value")]
 )
 def update_country_pie_chart(start_date, end_date, toogle):
-    theme = "cosmo" if toogle else "cyborg"
+    theme = "cosmo" if not toogle else "cyborg"
     
     countries = users_df[(users_df['datetime'] >= start_date) & (users_df['datetime'] <= end_date)]
     countries = countries.country.value_counts().reset_index().rename(columns={'index': 'Value', 'A': 'Count'})
@@ -333,7 +333,7 @@ def update_country_pie_chart(start_date, end_date, toogle):
      Input(ThemeSwitchAIO.ids.switch("theme"), "value")]
 )
 def update_other_country_chart(start_date, end_date, toogle):
-    theme = "cosmo" if toogle else "cyborg"
+    theme = "cosmo" if not toogle else "cyborg"
     
     countries = users_df[(users_df['datetime'] >= start_date) & (users_df['datetime'] <= end_date)]
     countries = countries.country.value_counts().reset_index().rename(columns={'index': 'Value', 'A': 'Count'})
@@ -362,9 +362,11 @@ def update_other_country_chart(start_date, end_date, toogle):
      Input('legend-fontsize', 'value'),
      Input('x-tick-fontsize', 'value'),
      Input('y-tick-fontsize', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value")
     ]
 )
-def update_users_unique_IP_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize):
+def update_users_unique_IP_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize, toogle):
+    theme = "cosmo" if not toogle else "cyborg"
     
     if period_value == 'monthly':
         period = 'MS'
@@ -417,7 +419,8 @@ def update_users_unique_IP_chart(start_date, end_date, period_value, country_val
         )
 
     fig.update_layout(
-        title_text="Unique IP counts"
+        title_text="Unique IP counts",
+        template=theme
     )
 
     fig.update_yaxes(title_text="# Unique IP", secondary_y=False, gridcolor='lightblue', title_font=dict(size=label_fontsize), tickfont=dict(size=y_tick_fontsize))
@@ -473,9 +476,11 @@ def update_users_unique_IP_chart(start_date, end_date, period_value, country_val
         Input('legend-fontsize', 'value'),
         Input('x-tick-fontsize', 'value'),
         Input('y-tick-fontsize', 'value'),
+        Input(ThemeSwitchAIO.ids.switch("theme"), "value")
     ]
 )
-def update_users_uuid_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize):
+def update_users_uuid_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize, toogle):
+    theme = "cosmo" if not toogle else "cyborg"
 
     if period_value == 'monthly':
         period = 'MS'
@@ -525,7 +530,8 @@ def update_users_uuid_chart(start_date, end_date, period_value, country_value, l
     )
 
     fig.update_layout(
-        title_text="UUID counts"
+        title_text="UUID counts",
+        template=theme
     )
 
     fig.update_layout(
@@ -598,9 +604,11 @@ def update_users_uuid_chart(start_date, end_date, period_value, country_value, l
      Input('legend-fontsize', 'value'),
      Input('x-tick-fontsize', 'value'),
      Input('y-tick-fontsize', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value")
     ]
 )
-def update_users_active_IP_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize):
+def update_users_active_IP_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize, toogle):
+    theme = "cosmo" if not toogle else "cyborg"
     
     if period_value == 'monthly':
         period = 'MS'
@@ -641,7 +649,8 @@ def update_users_active_IP_chart(start_date, end_date, period_value, country_val
 
 
     fig.update_layout(
-        title_text="Active IP counts"
+        title_text="Active IP counts",
+        template=theme
         )
 
     fig.update_layout(
@@ -695,9 +704,11 @@ def update_users_active_IP_chart(start_date, end_date, period_value, country_val
      Input('legend-fontsize', 'value'),
      Input('x-tick-fontsize', 'value'),
      Input('y-tick-fontsize', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value")
     ]
 )
-def update_users_session_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize):
+def update_users_session_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize, toogle):
+    theme = "cosmo" if not toogle else "cyborg"
     
     if period_value == 'monthly':
         period = 'MS'
@@ -738,7 +749,8 @@ def update_users_session_chart(start_date, end_date, period_value, country_value
 
 
     fig.update_layout(
-        title_text="Session counts"
+        title_text="Session counts",
+        template=theme
         )
 
     fig.update_layout(
@@ -1193,7 +1205,8 @@ def serve_layout():
             date_range_button_group,
             country_selection,
             ThemeSwitchAIO(
-                aio_id="theme", themes=[dbc.themes.COSMO, dbc.themes.CYBORG]
+                aio_id="theme", themes=[dbc.themes.COSMO, dbc.themes.CYBORG],
+                # switch_props={"label": "Dark Mode", "labelPosition": "start"}
             )
         ], style={'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center', 'width': '100%'}),
         dcc.Tabs(
