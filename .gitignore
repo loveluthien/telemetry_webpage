@@ -12,3 +12,5 @@ test.ipynb
 venv
 .env
 *.pyc
+
+/monitor_sources/daily_row_counts.txt
