@@ -8,7 +8,7 @@
 # Changing ~/.mutt/muttrc to use another's email settings
 # Making a new gpg key by echo echo "app password" | gpg --encrypt --armor -r key_name > ~/.mutt/your_key_file.gpg
 # Modifying ~/.mutt/get-password-gpg.sh
-# write to crontab with running this in terminal (crontab -l 2>/dev/null; echo "0 8 * * * /path/to/daily_monitoring.sh") | crontab -
+# Write to crontab with running this in terminal (crontab -l 2>/dev/null; echo "0 8 * * * cd /home/acdc/telemetry_webpage/monitor_sources && ./daily_monitoring.sh") | crontab -
 
 # Parse command line arguments
 SEND_EMAIL=true
