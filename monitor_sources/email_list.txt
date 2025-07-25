@@ -1,0 +1,5 @@
+# Email list for daily monitoring alerts
+# One email address per line
+# Lines starting with # are comments and will be ignored
+
+admin@example.com
