@@ -8,6 +8,7 @@
 # Changing ~/.mutt/muttrc to use another's email settings
 # Making a new gpg key by echo echo "app password" | gpg --encrypt --armor -r key_name > ~/.mutt/your_key_file.gpg
 # Modifying ~/.mutt/get-password-gpg.sh
+# write to crontab with running this in terminal (crontab -l 2>/dev/null; echo "0 8 * * * /path/to/daily_monitoring.sh") | crontab -
 
 # Parse command line arguments
 SEND_EMAIL=true
@@ -125,15 +126,11 @@ else
     echo "📄 processed_entries.csv"
     ENTRIES_FILE="$DATA_DIR/processed_entries.csv"
     ENTRIES_ROWS=$(count_rows "$ENTRIES_FILE")
-    echo "   Rows: $ENTRIES_ROWS"
-    echo
 
     # Check processed_sessions.csv
     echo "📄 processed_sessions.csv"
     SESSIONS_FILE="$DATA_DIR/processed_sessions.csv"
     SESSIONS_ROWS=$(count_rows "$SESSIONS_FILE")
-    echo "   Rows: $SESSIONS_ROWS"
-    echo
 
     # Compare with yesterday's counts
     if [ -f "./daily_row_counts.txt" ]; then
@@ -181,8 +178,6 @@ echo "Date: $TODAY"
 echo "MongoDB Backup: $BACKUP_STATUS"
 echo "CSV Files: $CSV_STATUS"
 if [[ "$ENTRIES_ROWS" != "FILE NOT FOUND" && "$SESSIONS_ROWS" != "FILE NOT FOUND" ]]; then
-    echo "Total entries: $ENTRIES_ROWS"
-    echo "Total sessions: $SESSIONS_ROWS"
     if [[ -n "$CHANGE_STATUS" ]]; then
         echo "Data change: $CHANGE_STATUS"
     fi
