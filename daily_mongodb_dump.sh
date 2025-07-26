@@ -2,10 +2,13 @@
 
 # daily dump the entries and sessions collections from the mongo backup files and export it to a csv file
 
-mongo_backup_dir="../"
-dumped_dir="./dumped_csv"
+# mongo_backup_dir=$(awk -F ":" '/mongo_backup_dir/ {print $2}' config)
+# dumped_dir=$(awk -F ":" '/dumped_file_dir/ {print $2}' config)
 
-today=`date +"%Y_%m_%d"` 
+mongo_backup_dir=/var/www/telemetry ## on server
+dumped_dir=/home/acdc/telemetry_webpage/dumped_csv ## on server
+
+today=`date +"%Y_%m_%d"`
 
 # Restore MongoDB backup
 mongorestore --host=localhost --port=27017 --gzip --drop --archive="${mongo_backup_dir}/mongo_backup_${today}.tar.gz"
