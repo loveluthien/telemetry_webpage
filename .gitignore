@@ -15,3 +15,4 @@ venv
 
 /monitor_sources/daily_row_counts.txt
 /monitor_sources/monitor_log
+/monitor_sources/email_list.txt
