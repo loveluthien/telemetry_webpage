@@ -110,12 +110,15 @@ def extract_missing_data_dates():
     date_counts = resample_dates.apply(lambda x: x.ipHash.unique().size)
 
     ## modify here ##
-    global_holidays = ['12-24', '12-25', '12-26', '12-27', '12-28', '12-29', '12-30', '12-31', '01-01']
+    xmas_newyear_holidays = ['12-24', '12-25', '12-26', '12-27', '12-28', '12-29', '12-30', '12-31', '01-01', '01-02', '01-03', '01-04', '01-05']
     unusual_threshold = {'2021': {'workday': 0, 'holiday': 0}, 
                         '2022': {'workday': 0, 'holiday': 0}, 
                         '2023': {'workday': 60, 'holiday': 20}, 
                         '2024': {'workday': 80, 'holiday': 30}, 
                         '2025': {'workday': 100, 'holiday': 40}}
+    # if year is not listed, use the last year threshold
+    for year in range(2026, today.year + 1):
+        unusual_threshold[f'{year}'] = unusual_threshold[f'{year-1}']
     ## modify here ##
 
     missing_data = []
@@ -126,7 +129,7 @@ def extract_missing_data_dates():
         if not formatted_date in date_counts.keys():
             continue
 
-        if (f"{current_date.month:02d}-{current_date.day:02d}" in global_holidays) | (current_date.weekday() in [5, 6]):
+        if (f"{current_date.month:02d}-{current_date.day:02d}" in xmas_newyear_holidays) | (current_date.weekday() in [5, 6]):
             if date_counts[formatted_date] < unusual_threshold[f'{current_date.year}']['holiday']:
                 missing_data.append(formatted_date)
         else:
