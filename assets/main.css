@@ -187,9 +187,111 @@ html {
         margin: 10px;
     }
     
-    [id=tabs=content] {
+    [id=tabs-content] {
         height: 80%;
     }
 }
 
+/* Normalize button padding between COSMO and CYBORG themes to prevent layout shift */
+.btn {
+    padding: .375rem .75rem !important;
+}
 
+/* Make outline-secondary buttons more visible in dark mode */
+.dark-mode .btn-outline-secondary {
+    color: #adb5bd !important;
+    border-color: #adb5bd !important;
+}
+
+.dark-mode .btn-outline-secondary:hover {
+    color: #fff !important;
+    background-color: #6c757d !important;
+    border-color: #adb5bd !important;
+}
+
+.dark-mode .btn-outline-secondary.active,
+.dark-mode .btn-outline-secondary:active {
+    color: #fff !important;
+    background-color: #6c757d !important;
+    border-color: #adb5bd !important;
+}
+
+/* Dark mode for dcc.Tabs */
+.dark-mode .tab-container {
+    background-color: #060606 !important;
+    border-bottom-color: #444 !important;
+}
+
+.dark-mode .tab {
+    background-color: #1a1a1a !important;
+    color: #888 !important;
+    border-color: #444 !important;
+    border-top: 3px solid transparent !important;
+}
+
+.dark-mode .tab:hover {
+    background-color: #2a2a2a !important;
+    color: #ccc !important;
+}
+
+.dark-mode .tab--selected {
+    background-color: #060606 !important;
+    color: #fff !important;
+    border-top: 3px solid #2196F3 !important;
+    border-left-color: #444 !important;
+    border-right-color: #444 !important;
+    border-bottom-color: #060606 !important;
+}
+
+.dark-mode .tab-content {
+    background-color: #060606 !important;
+}
+
+/* Vertical tabs (used in Users, Versions, Files tabs) */
+.dark-mode .tab--vert {
+    background-color: #1a1a1a !important;
+    color: #888 !important;
+    border-color: #444 !important;
+}
+
+.dark-mode .tab--vert:hover {
+    background-color: #2a2a2a !important;
+    color: #ccc !important;
+}
+
+.dark-mode .tab--vert.tab--selected {
+    background-color: #060606 !important;
+    color: #fff !important;
+    border-left: 3px solid #2196F3 !important;
+    border-right-color: #060606 !important;
+}
+
+/* Dark mode for dcc.DatePickerRange (react-dates) */
+.dark-mode .DateRangePicker,
+.dark-mode .DateRangePickerInput,
+.dark-mode .DateRangePickerInput__withBorder,
+.dark-mode .DateInput {
+    background-color: #1a1a1a !important;
+    border-color: #444 !important;
+}
+
+.dark-mode .DateInput_input {
+    background-color: #1a1a1a !important;
+    color: #fff !important;
+    border-bottom-color: #444 !important;
+}
+
+.dark-mode .DateInput_input__focused {
+    border-bottom-color: #2196F3 !important;
+}
+
+.dark-mode .DateRangePickerInput_arrow_svg {
+    fill: #aaa !important;
+}
+
+/* Dark mode for number input fields (font size controls in Users tab) */
+.dark-mode input.dash-input {
+    background-color: #1a1a1a !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
