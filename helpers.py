@@ -64,7 +64,7 @@ def filter_by_country(df, country_value: str):
     When *country_value* is empty string (''), all rows are selected.
     """
     if country_value == "":
-        return df["countryCode"] != country_value  # all True ('' never equals any code)
+        return df["countryCode"].isnull() | df["countryCode"].notnull()
     return df["countryCode"] == country_value
 
 

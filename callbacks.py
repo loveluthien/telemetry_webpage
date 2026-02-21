@@ -693,15 +693,16 @@ def update_os_detail_pie_chart(start_date, end_date, country_value, toggle):
     version_values += [linux_OS["count"][showed_linux_num:].sum()]
     platform_array += ["Linux"]
 
-    the_mac = mac_sub["macOS"]
-    showed_num = min(len(the_mac["OS_version"]), 3)
+    if "macOS" in mac_sub and not mac_sub["macOS"].empty:
+        the_mac = mac_sub["macOS"]
+        showed_num = min(len(the_mac["OS_version"]), 3)
 
-    version_labels += the_mac["OS_version"][:showed_num].to_list()
-    version_values += the_mac["count"][:showed_num].to_list()
-    version_labels += ["others"]
-    version_values += [the_mac["count"][showed_num:].sum()]
-    os_array += [list(mac_sub.keys())[0]] * (showed_num + 1)
-    platform_array += ["macOS"] * (showed_num + 1)
+        version_labels += the_mac["OS_version"][:showed_num].to_list()
+        version_values += the_mac["count"][:showed_num].to_list()
+        version_labels += ["others"]
+        version_values += [the_mac["count"][showed_num:].sum()]
+        os_array += [list(mac_sub.keys())[0]] * (showed_num + 1)
+        platform_array += ["macOS"] * (showed_num + 1)
 
     df = pd.DataFrame(
         dict(os=os_array, version=version_labels, count=version_values, platform=platform_array)
@@ -929,8 +930,13 @@ def update_action_bar_chart(start_date, end_date, country_value, toggle):
         "pvGeneration",
     ]
     fig = go.Figure()
+    end_session_count = actions.get("endSession", 0)
     for action_name in plot_action_names:
-        ratio = actions[action_name] / actions["endSession"]
+        action_count = actions.get(action_name, 0)
+        if end_session_count > 0:
+            ratio = action_count / end_session_count
+        else:
+            ratio = 0
         fig.add_trace(
             go.Bar(
                 y=["action"],

@@ -17,5 +17,5 @@ if __name__ == "__main__":
     _cfg.read("config")
     debug_mode = _cfg.get("SERVER", "debug") == "True"
     host_ip = _cfg.get("SERVER", "host") or "localhost"
-    port = _cfg.get("SERVER", "port") or 8050
+    port = _cfg.getint("SERVER", "port", fallback=8050)
     app.run(debug=debug_mode, host=host_ip, port=port)
