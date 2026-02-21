@@ -187,7 +187,7 @@ html {
         margin: 10px;
     }
     
-    [id=tabs=content] {
+    [id=tabs-content] {
         height: 80%;
     }
 }
