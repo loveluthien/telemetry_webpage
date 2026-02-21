@@ -2,7 +2,9 @@ import dash
 from dash import dcc, html, Input, Output, ctx, dash_table
 # import dash_daq as daq
 import dash_bootstrap_components as dbc
-from dash_bootstrap_templates import ThemeSwitchAIO
+from dash_bootstrap_templates import ThemeSwitchAIO, load_figure_template
+
+load_figure_template(["cosmo", "cyborg"])
 
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -58,7 +60,7 @@ for i in range(len(size_label)):
 
 
 # Initialize Dash app
-app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME, DARK_THEME])
+app = dash.Dash(__name__, external_stylesheets=[LIGHT_THEME])
 server = app.server
 
 #### make dataframes to table item ####
@@ -273,6 +275,14 @@ def set_date_range(start_date, end_date, n_today, n_1m, n_3m, n_6m, n_1y, n_all)
 
 
 
+@app.callback(
+    Output('app-theme-wrapper', 'className'),
+    Input(ThemeSwitchAIO.ids.switch("theme"), "value")
+)
+def toggle_theme_class(toogle):
+    return "" if toogle else "dark-mode"
+
+
 #### figures ####
 
 ## country tab ##
@@ -283,7 +293,7 @@ def set_date_range(start_date, end_date, n_today, n_1m, n_3m, n_6m, n_1y, n_all)
      Input(ThemeSwitchAIO.ids.switch("theme"), "value")]
 )
 def update_country_map_chart(start_date, end_date, toogle):
-    theme = "cosmo" if not toogle else "cyborg"
+    theme = "cosmo" if toogle else "cyborg"
 
     # process country information
     countries = users_df[(users_df['datetime'] >= start_date) & (users_df['datetime'] <= end_date)]
@@ -306,7 +316,7 @@ def update_country_map_chart(start_date, end_date, toogle):
      Input(ThemeSwitchAIO.ids.switch("theme"), "value")]
 )
 def update_country_pie_chart(start_date, end_date, toogle):
-    theme = "cosmo" if not toogle else "cyborg"
+    theme = "cosmo" if toogle else "cyborg"
     
     countries = users_df[(users_df['datetime'] >= start_date) & (users_df['datetime'] <= end_date)]
     countries = countries.country.value_counts().reset_index().rename(columns={'index': 'Value', 'A': 'Count'})
@@ -333,7 +343,7 @@ def update_country_pie_chart(start_date, end_date, toogle):
      Input(ThemeSwitchAIO.ids.switch("theme"), "value")]
 )
 def update_other_country_chart(start_date, end_date, toogle):
-    theme = "cosmo" if not toogle else "cyborg"
+    theme = "cosmo" if toogle else "cyborg"
     
     countries = users_df[(users_df['datetime'] >= start_date) & (users_df['datetime'] <= end_date)]
     countries = countries.country.value_counts().reset_index().rename(columns={'index': 'Value', 'A': 'Count'})
@@ -366,7 +376,7 @@ def update_other_country_chart(start_date, end_date, toogle):
     ]
 )
 def update_users_unique_IP_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize, toogle):
-    theme = "cosmo" if not toogle else "cyborg"
+    theme = "cosmo" if toogle else "cyborg"
     
     if period_value == 'monthly':
         period = 'MS'
@@ -480,7 +490,7 @@ def update_users_unique_IP_chart(start_date, end_date, period_value, country_val
     ]
 )
 def update_users_uuid_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize, toogle):
-    theme = "cosmo" if not toogle else "cyborg"
+    theme = "cosmo" if toogle else "cyborg"
 
     if period_value == 'monthly':
         period = 'MS'
@@ -608,7 +618,7 @@ def update_users_uuid_chart(start_date, end_date, period_value, country_value, l
     ]
 )
 def update_users_active_IP_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize, toogle):
-    theme = "cosmo" if not toogle else "cyborg"
+    theme = "cosmo" if toogle else "cyborg"
     
     if period_value == 'monthly':
         period = 'MS'
@@ -708,7 +718,7 @@ def update_users_active_IP_chart(start_date, end_date, period_value, country_val
     ]
 )
 def update_users_session_chart(start_date, end_date, period_value, country_value, label_fontsize, legend_fontsize, x_tick_fontsize, y_tick_fontsize, toogle):
-    theme = "cosmo" if not toogle else "cyborg"
+    theme = "cosmo" if toogle else "cyborg"
     
     if period_value == 'monthly':
         period = 'MS'
@@ -799,10 +809,11 @@ def update_users_session_chart(start_date, end_date, period_value, country_value
     Output('version-pie', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),]
 )
-def update_version_pie_chart(start_date, end_date, country_value):
-    # theme = "cosmo" if toogle else "cyborg"
+def update_version_pie_chart(start_date, end_date, country_value, toogle):
+    theme = "cosmo" if toogle else "cyborg"
 
     if country_value == '':
         country_select = sessions_df['countryCode'] != country_value
@@ -817,7 +828,7 @@ def update_version_pie_chart(start_date, end_date, country_value):
         versions.loc[versions.version == other, 'version'] = 'Others'
 
 
-    fig = px.pie(versions, names='version', title=f'Version distribution', hole=.4)
+    fig = px.pie(versions, names='version', title=f'Version distribution', hole=.4, template=theme)
     # fig.update_traces(textinfo='percent+label')
     fig.update_traces(textinfo='value+percent+label', insidetextorientation='horizontal')
 
@@ -832,10 +843,11 @@ def update_version_pie_chart(start_date, end_date, country_value):
     Output('os-pie', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),]
 )
-def update_os_pie_chart(start_date, end_date, country_value):
-    # theme = "cosmo" if toogle else "cyborg"
+def update_os_pie_chart(start_date, end_date, country_value, toogle):
+    theme = "cosmo" if toogle else "cyborg"
 
     if country_value == '':
         country_select = sessions_df['countryCode'] != country_value
@@ -844,7 +856,7 @@ def update_os_pie_chart(start_date, end_date, country_value):
 
     platform = sessions_df[(sessions_df['datetime'] >= start_date) & (sessions_df['datetime'] <= end_date) & country_select]
 
-    fig = px.pie(platform, names='backendPlatform', title=f'Platform distribution', hole=.4)
+    fig = px.pie(platform, names='backendPlatform', title=f'Platform distribution', hole=.4, template=theme)
     fig.update_traces(textinfo='value+percent+label', insidetextorientation='horizontal')
 
     fig.update_layout(
@@ -859,10 +871,11 @@ def update_os_pie_chart(start_date, end_date, country_value):
     Output('os_detail-pie', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),]
 )
-def update_os_detail_pie_chart(start_date, end_date, country_value):
-    # theme = "cosmo" if toogle else "cyborg"
+def update_os_detail_pie_chart(start_date, end_date, country_value, toogle):
+    theme = "cosmo" if toogle else "cyborg"
 
     if country_value == '':
         country_select = sessions_df['countryCode'] != country_value
@@ -942,7 +955,7 @@ def update_os_detail_pie_chart(start_date, end_date, country_value):
         dict(os=os_array, version=version_labels, count=version_values, platform=platform_array)
     )
 
-    fig = px.sunburst(df, path=['platform', 'os', 'version'], values='count')
+    fig = px.sunburst(df, path=['platform', 'os', 'version'], values='count', template=theme)
 
     fig.update_layout(
         transition_duration=1000, 
@@ -962,9 +975,11 @@ def update_os_detail_pie_chart(start_date, end_date, country_value):
     Output('file-type-pie', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),]
 )
-def update_file_pie_chart(start_date, end_date, country_value):
+def update_file_pie_chart(start_date, end_date, country_value, toogle):
+    theme = "cosmo" if toogle else "cyborg"
 
     if country_value == '':
         country_select = files_df['countryCode'] != country_value
@@ -986,6 +1001,7 @@ def update_file_pie_chart(start_date, end_date, country_value):
     fig.update_layout(
         transition_duration=500, 
         title_text=f'File types distribution',
+        template=theme,
         margin={"r":0,"t":50,"l":0,"b":0},
         showlegend=False
     )
@@ -996,9 +1012,11 @@ def update_file_pie_chart(start_date, end_date, country_value):
     Output('file-size-pie', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),]
 )
-def update_file_size_pie_chart(start_date, end_date, country_value):
+def update_file_size_pie_chart(start_date, end_date, country_value, toogle):
+    theme = "cosmo" if toogle else "cyborg"
 
     if country_value == '':
         country_select = files_df['countryCode'] != country_value
@@ -1024,7 +1042,8 @@ def update_file_size_pie_chart(start_date, end_date, country_value):
     fig.update_traces(insidetextorientation='horizontal')
     fig.update_layout(
         title_text=f'File size distribution',
-        transition_duration=500, 
+        transition_duration=500,
+        template=theme,
         margin={"r":0,"t":50,"l":0,"b":0},
         showlegend=False,
     )
@@ -1035,9 +1054,11 @@ def update_file_size_pie_chart(start_date, end_date, country_value):
     Output('file-size-bar', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),]
 )
-def update_file_size_bar_chart(start_date, end_date, country_value):
+def update_file_size_bar_chart(start_date, end_date, country_value, toogle):
+    theme = "cosmo" if toogle else "cyborg"
 
     if country_value == '':
         country_select = files_df['countryCode'] != country_value
@@ -1057,6 +1078,7 @@ def update_file_size_bar_chart(start_date, end_date, country_value):
     fig.update_layout(
         barmode='stack', 
         barnorm='percent',
+        template=theme,
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -1073,9 +1095,11 @@ def update_file_size_bar_chart(start_date, end_date, country_value):
     Output('file-shape', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),]
 )
-def update_file_shape_chart(start_date, end_date, country_value):
+def update_file_shape_chart(start_date, end_date, country_value, toogle):
+    theme = "cosmo" if toogle else "cyborg"
 
     if country_value == '':
         country_select = files_df['countryCode'] != country_value
@@ -1136,6 +1160,7 @@ def update_file_shape_chart(start_date, end_date, country_value):
                 clipmax=5,
             )
             ,),
+        template=theme,
         # margin=dict(l=0, r=0, t=0, b=0),
         )
     
@@ -1155,9 +1180,11 @@ def update_file_shape_chart(start_date, end_date, country_value):
     Output('action-bar', 'figure'),
     [Input('date-picker', 'start_date'),
      Input('date-picker', 'end_date'),
-     Input('country-item', 'value'),]
+     Input('country-item', 'value'),
+     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),]
 )
-def update_file_shape_XY_chart(start_date, end_date, country_value):
+def update_file_shape_XY_chart(start_date, end_date, country_value, toogle):
+    theme = "cosmo" if toogle else "cyborg"
 
     if country_value == '':
         country_select = entries_df['countryCode'] != country_value
@@ -1178,6 +1205,7 @@ def update_file_shape_XY_chart(start_date, end_date, country_value):
     fig.update_layout(
         barmode='stack', 
         barnorm='percent',
+        template=theme,
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -1193,34 +1221,36 @@ def update_file_shape_XY_chart(start_date, end_date, country_value):
 
 
 def serve_layout():
-    layout = dbc.Container([
-        html.Div([
-            dcc.DatePickerRange(
-                id='date-picker',
-                start_date='2021-12-01',
-                end_date=today.strftime('%Y-%m-%d'),
-                display_format='YYYY-MM-DD',
-            ),
-            dbc.Button("Today", id="btn-today", n_clicks=0, outline=True, color="primary"),
-            date_range_button_group,
-            country_selection,
-            ThemeSwitchAIO(
-                aio_id="theme", themes=[dbc.themes.COSMO, dbc.themes.CYBORG],
-                # switch_props={"label": "Dark Mode", "labelPosition": "start"}
-            )
-        ], style={'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center', 'width': '100%'}),
-        dcc.Tabs(
-            id="tabs-selection", value='home_tab',
-            children=[
-            dcc.Tab(label='Home', value='home_tab'),
-            dcc.Tab(label='Countries', value='country_tab'),
-            dcc.Tab(label='Users', value='users_tab'),
-            dcc.Tab(label='Versions and OS', value='version_os_tab'),
-            dcc.Tab(label='Files and actions', value='file_tab'),
-        ]),
-        html.Div(id='tabs-content'),
+    layout = html.Div([
+        dbc.Container([
+            html.Div([
+                dcc.DatePickerRange(
+                    id='date-picker',
+                    start_date='2021-12-01',
+                    end_date=today.strftime('%Y-%m-%d'),
+                    display_format='YYYY-MM-DD',
+                ),
+                dbc.Button("Today", id="btn-today", n_clicks=0, outline=True, color="primary"),
+                date_range_button_group,
+                country_selection,
+                ThemeSwitchAIO(
+                    aio_id="theme", themes=[dbc.themes.COSMO, dbc.themes.CYBORG],
+                    # switch_props={"label": "Dark Mode", "labelPosition": "start"}
+                )
+            ], style={'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center', 'width': '100%'}),
+            dcc.Tabs(
+                id="tabs-selection", value='home_tab',
+                children=[
+                dcc.Tab(label='Home', value='home_tab'),
+                dcc.Tab(label='Countries', value='country_tab'),
+                dcc.Tab(label='Users', value='users_tab'),
+                dcc.Tab(label='Versions and OS', value='version_os_tab'),
+                dcc.Tab(label='Files and actions', value='file_tab'),
+            ]),
+            html.Div(id='tabs-content'),
         ], fluid=True)
-    
+    ], id='app-theme-wrapper')
+
     return layout
 
 
