@@ -948,3 +948,22 @@ def update_action_bar_chart(start_date, end_date, country_value, toggle):
     )
     fig.update_xaxes(title_text="%")
     return fig
+
+# ---------------------------------------------------------------------------
+# Clientside: auto-detect OS dark mode on page load
+# ---------------------------------------------------------------------------
+# The dcc.Store "os-theme-store" fires once on mount with data=None.
+# We check window.matchMedia and set the ThemeSwitchAIO value accordingly.
+# True  → light (COSMO), False → dark (CYBORG)
+app.clientside_callback(
+    """
+    function(data) {
+        var prefersDark = window.matchMedia &&
+                          window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return !prefersDark;
+    }
+    """,
+    Output(ThemeSwitchAIO.ids.switch("theme"), "value"),
+    Input("os-theme-store", "data"),
+    prevent_initial_call=False,
+)

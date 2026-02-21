@@ -223,6 +223,8 @@ def serve_layout():
 
     layout = html.Div(
         [
+            # Fires once on page load (data=None); triggers OS dark-mode detection
+            dcc.Store(id="os-theme-store", storage_type="memory"),
             dbc.Container(
                 [
                     html.Div(
